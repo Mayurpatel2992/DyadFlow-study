@@ -8,7 +8,7 @@
   :root { --bg:#f7f7f5; --card:#ffffff; --ink:#1d1d1f; --mute:#6b6b70; --line:#e2e2e0; --accent:#2f5bd3; }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
-  main { max-width:1100px; margin:0 auto; padding:24px 16px 64px; }
+  main { max-width:1320px; margin:0 auto; padding:24px 16px 64px; }
   h1 { font-size:22px; margin:0 0 4px; } h2 { font-size:17px; margin:0; }
   .mute { color:var(--mute); }
   .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; margin:14px 0; }
@@ -16,8 +16,14 @@
   .progress { height:6px; background:var(--line); border-radius:3px; overflow:hidden; margin-top:10px; }
   .progress > div { height:100%; background:var(--accent); width:0; transition:width .2s; }
   video { width:100%; border-radius:8px; background:#fff; border:1px solid var(--line); display:block; }
-  .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
-  @media (max-width:700px) { .grid { grid-template-columns:1fr; } }
+  .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+  @media (max-width:1100px) { .grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  @media (max-width:640px) { .grid { grid-template-columns:1fr; } }
+  .vwrap { position:relative; }
+  .badge { position:absolute; top:8px; left:8px; padding:2px 8px; border-radius:999px; font-size:12px; font-weight:700; color:#fff; background:#2f5bd3; }
+  .badge.spk { background:#c5402f; }
+  .grp { margin-top:10px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+  .grp.spk { color:#c5402f; } .grp.lis { color:#2f5bd3; }
   .cand { margin:0; }
   .cand h3 { margin:0 0 6px; font-size:16px; }
   .cand h3 .id { font-weight:400; font-size:11px; color:var(--mute); }
@@ -42,15 +48,17 @@
   <section id="intro" class="card">
     <h1>Rating 3D talking heads</h1>
     <p>Each page shows one short conversation (16&nbsp;s) between two people. You hear both voices. The grey 3D head belongs to
-      <b>one</b> of the two people: sometimes it speaks, sometimes it listens to the other person.</p>
+      <b>one</b> of the two people: sometimes it speaks, sometimes it listens to the other person.
+      A badge on each video shows <b style="color:#c5402f">SPEAKING</b> or <b style="color:#2f5bd3">LISTENING</b> as it plays.</p>
     <p>Every page has <b>four computer-generated versions</b> of the same head in the same conversation (Video A–D, in random order).
-      Watch each one with sound and rate it from <b>1 (very poor)</b> to <b>5 (excellent)</b> on:</p>
+      Watch each one with sound and rate it from <b>1 (very poor)</b> to <b>5 (excellent)</b>, separately for the two phases:</p>
     <dl class="crit">
-      <dt>Lip sync</dt><dd>When the head speaks, do the lips and jaw match the speech?</dd>
-      <dt>Naturalness</dt><dd>Does the motion look like a real person: smooth, no shaking or jitter, not frozen or robotic?</dd>
-      <dt>Interactivity</dt><dd>When the head listens, does it react to the other person in a believable way (nods, expressions, attention)?</dd>
+      <dt style="color:#c5402f">While speaking</dt>
+      <dd><b>Lip sync</b>: do the lips and jaw match the speech?<br><b>Naturalness</b>: does it move like a real person talking (smooth, no jitter, not frozen or robotic)?</dd>
+      <dt style="color:#2f5bd3">While listening</dt>
+      <dd><b>Reactions</b>: does it respond to the other person in a believable way (nods, expressions, attention)?<br><b>Naturalness</b>: does it move like a real person listening (smooth, no jitter, not frozen or robotic)?</dd>
     </dl>
-    <p class="mute">20 pages, about 20 minutes. Headphones help. Your answers are saved in this browser, so you can close the page and continue later.</p>
+    <p class="mute">10 pages, about 12 minutes. Headphones help. Your answers are saved in this browser, so you can close the page and continue later.</p>
     <div class="bar"><span><input id="nick" type="text" placeholder="Your nickname (any)"></span>
       <button class="primary" id="start">Start</button></div>
     <div class="warn" id="introWarn"></div>
@@ -79,9 +87,9 @@
 </main>
 <script src="config.js"></script>
 <script>
-const CLIPS = [{"cands": ["81c0d67f", "6773bfce", "d9bec3da", "73ab150d"]}, {"cands": ["278f3b2b", "42cab156", "af15c0fc", "37be0507"]}, {"cands": ["1b601894", "2ab64116", "1c22c834", "e7740ae4"]}, {"cands": ["b3cac443", "0486736e", "eb808d20", "e01c02bf"]}, {"cands": ["82a2d6dd", "21a65200", "dcbc671c", "aa6bfa97"]}, {"cands": ["26389bc6", "edc6498d", "8d1d7305", "5a6fe47b"]}, {"cands": ["76d70005", "3bf7c684", "0038599b", "2ed4d969"]}, {"cands": ["0b574093", "2901a395", "2ce5b861", "dd26b5e5"]}, {"cands": ["61a8e5f6", "d0d6bab7", "f5e2d300", "7384c03c"]}, {"cands": ["6a582ce8", "baf60061", "b15ab6e0", "c5b5524a"]}, {"cands": ["b16908a5", "0fbf0c6a", "80eaa062", "c9c96af0"]}, {"cands": ["cbbdd098", "3dc19403", "d7dd5962", "18d714db"]}, {"cands": ["a9a98894", "2a875046", "4fff66a9", "4d8aa27b"]}, {"cands": ["b79bce76", "59c06a16", "b4babecd", "f5eefdfd"]}, {"cands": ["4399a7af", "d0e4c30d", "d949405b", "9ca83c2a"]}, {"cands": ["fccbb0fb", "467494eb", "09aa1eb2", "da370d9b"]}, {"cands": ["886ad3e6", "34f7d04d", "7a0fe654", "70bdb5c2"]}, {"cands": ["c13c88d4", "85d31c49", "500bdebd", "9b9da67d"]}, {"cands": ["f4e1802d", "2f98c6d0", "20e49658", "2609acbf"]}, {"cands": ["4c187edf", "3991b48e", "b0651e3c", "e94cca1b"]}];
-const CRIT = [["lipsync", "Lip sync"], ["natural", "Naturalness"], ["interact", "Interactivity"]];
-const KEY = "ts_study_v2";
+const CLIPS = [{"cands": ["81c0d67f", "6773bfce", "d9bec3da", "73ab150d"], "mask": "1111111111111111111000000000000000000000000000000000000000000011111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111110000000000000000000000000000011111111111111111111000000000000000000000000000000000000000001111111111111111111111111111000000000000000000000000000000000000000000000000000000000000000000000000000000000000111111111111111111111111"}, {"cands": ["278f3b2b", "42cab156", "af15c0fc", "37be0507"], "mask": "0000000000000000000000111111111111111111111111111111111000000000000000000000000000000000000000000000000000000000000000001111111111111110000000000000111111111111000000000000000000000000000000001111111111111111111111111111111111111110000000000000000000001111111111111111110000001111111111111111111111111111111111111110000000000000000011111111111111111111111111111111111111111111110000000000000001111111"}, {"cands": ["1b601894", "2ab64116", "1c22c834", "e7740ae4"], "mask": "1111111111111100000000000111111111111111111111111111111111111111111111111111111111111111100000000000000000000000000000000000000000000000000000000000000000000000000000111111111111111111111100011111111111111111111111111111111111111111111111111111111111000000000000000000000000000000000000001111111111111111111000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"}, {"cands": ["b3cac443", "0486736e", "eb808d20", "e01c02bf"], "mask": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000011111111111111111111111111111111111111111111111111000000000000000000000000000000000000000000000000011111111111111111111111100000000000111111111111111111111111111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"}, {"cands": ["82a2d6dd", "21a65200", "dcbc671c", "aa6bfa97"], "mask": "0000001111111111111111111111111111111111111111111111111111111111111111111111111111111111111100000000000000001111111111111111111111111111111111111111111111100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"}, {"cands": ["26389bc6", "edc6498d", "8d1d7305", "5a6fe47b"], "mask": "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000011111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"}, {"cands": ["76d70005", "3bf7c684", "0038599b", "2ed4d969"], "mask": "0000001111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111000000011111111111111111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"}, {"cands": ["0b574093", "2901a395", "2ce5b861", "dd26b5e5"], "mask": "1110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000011111111111111111111111100000000000000000000000000011111111111111111111111111111111111111111111111111111111111111111111111111111111111111100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"}, {"cands": ["61a8e5f6", "d0d6bab7", "f5e2d300", "7384c03c"], "mask": "1111111111111111111111111111111100000000000000000000000000000000000000000000000000000000000000011111111111111111111111111111111111111111111111111111111111111111111111111111100000001111111100000000000000000000000000000000000000000000000000000000000000000000000000111111111111111111111111111111111111000000000000111111111111111111111111111111111111111111111111111111111000000000000000000000000000000000"}, {"cands": ["6a582ce8", "baf60061", "b15ab6e0", "c5b5524a"], "mask": "1111111111111111111111111111111110000000000000000000000000000000000000001111111111111110000000000111111111111111111111111111111110000000000000000000000000000000000000000011111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111000000000001111111111111111111111111111111111111111111111111111111111000011111111111111111111111111111111111111111111111"}];
+const CRIT = [["s_lip", "Lip sync", "spk"], ["s_nat", "Naturalness", "spk"], ["l_react", "Reactions", "lis"], ["l_nat", "Naturalness", "lis"]];
+const KEY = "ts_study_v3";
 let S = null;
 try { S = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { S = null; }
 if (S && (!S.pages || S.pages.some(p => !CLIPS[p.clip]))) S = null;          // stale state from another build
@@ -99,20 +107,26 @@ function begin(nick) {
   save(); show();
 }
 function render() {
-  const p = S.pages[S.page];
+  const p = S.pages[S.page], mask = CLIPS[p.clip].mask || "";
   $("title").textContent = `Conversation ${S.page + 1}`; $("count").textContent = `${S.page + 1} / ${S.pages.length}`;
   $("prog").style.width = `${100 * S.page / S.pages.length}%`;
   const g = $("grid"); g.innerHTML = "";
   p.cands.forEach((vid, j) => {
     const d = document.createElement("div"); d.className = "card cand";
-    d.innerHTML = `<h3>Video ${"ABCD"[j]} <span class="id">#${vid}</span></h3><video controls preload="auto" playsinline src="videos/${vid}.mp4"></video>` +
-      CRIT.map(([k, lab]) => `<div class="q"><div class="lab">${lab}</div><div class="scale">` +
-        [1, 2, 3, 4, 5].map(s => `<label><input type="radio" name="${vid}_${k}" value="${s}" ${(S.ans[vid] || {})[k] == s ? "checked" : ""}><span>${s}</span></label>`).join("") +
+    d.innerHTML = `<h3>Video ${"ABCD"[j]} <span class="id">#${vid}</span></h3><div class="vwrap"><video controls preload="auto" playsinline src="videos/${vid}.mp4"></video><span class="badge"></span></div>` +
+      CRIT.map(([k, lab, ph], qi) => (qi === 0 || CRIT[qi - 1][2] !== ph ? `<div class="grp ${ph}">${ph === "spk" ? "While speaking" : "While listening"}</div>` : "") +
+        `<div class="q"><div class="lab">${lab}</div><div class="scale">` +
+        [1, 2, 3, 4, 5].map(s => `<label><input type="radio" name="${vid}|${k}" value="${s}" ${(S.ans[vid] || {})[k] == s ? "checked" : ""}><span>${s}</span></label>`).join("") +
         `</div></div>`).join("") + `<div class="ends"><span>1 very poor</span><span>5 excellent</span></div>`;
+    const v = d.querySelector("video"), b = d.querySelector(".badge");
+    const upd = () => { const sp = mask[Math.min(Math.floor(v.currentTime * 25), mask.length - 1)] === "1";
+      b.textContent = sp ? "SPEAKING" : "LISTENING"; b.className = "badge" + (sp ? " spk" : ""); };
+    const loop = () => { upd(); if (!v.paused) requestAnimationFrame(loop); };
+    v.addEventListener("play", loop); v.addEventListener("seeked", upd); v.addEventListener("loadedmetadata", upd);
     g.appendChild(d);
   });
   g.querySelectorAll("input").forEach(inp => inp.addEventListener("change", e => {
-    const [vid, k] = e.target.name.split("_"); (S.ans[vid] = S.ans[vid] || {})[k] = +e.target.value; S.ans[vid].t = new Date().toISOString(); save();
+    const [vid, k] = e.target.name.split("|"); (S.ans[vid] = S.ans[vid] || {})[k] = +e.target.value; S.ans[vid].t = new Date().toISOString(); save();
   }));
   $("prev").disabled = S.page === 0; $("next").textContent = S.page === S.pages.length - 1 ? "Finish" : "Next"; $("warn").textContent = "";
   window.scrollTo(0, 0);
@@ -142,7 +156,7 @@ function show() {
   if (S && S.page >= S.pages.length) { if (S.submitted) $("sendMsg").textContent = "✓ Your answers were sent. Thank you, you can close this page."; else submit(); }
 }
 $("start").onclick = () => { const n = $("nick").value.trim(); if (!n) { $("introWarn").textContent = "Please enter a nickname."; return; } begin(n); };
-$("next").onclick = () => { if (!complete()) { $("warn").textContent = "Please rate every video on all three questions."; return; }
+$("next").onclick = () => { if (!complete()) { $("warn").textContent = "Please rate every video on all four questions."; return; }
   vids().forEach(v => v.pause()); S.page++; save(); show(); };
 $("prev").onclick = () => { vids().forEach(v => v.pause()); S.page--; save(); show(); };
 $("back").onclick = () => { S.page = S.pages.length - 1; save(); show(); };
