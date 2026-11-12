@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Talking Head Study</title>
+<style>
+  :root { --bg:#f7f7f5; --card:#ffffff; --ink:#1d1d1f; --mute:#6b6b70; --line:#e2e2e0; --accent:#2f5bd3; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  main { max-width:1100px; margin:0 auto; padding:24px 16px 64px; }
+  h1 { font-size:22px; margin:0 0 4px; } h2 { font-size:17px; margin:0; }
+  .mute { color:var(--mute); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; margin:14px 0; }
+  .bar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .progress { height:6px; background:var(--line); border-radius:3px; overflow:hidden; margin-top:10px; }
+  .progress > div { height:100%; background:var(--accent); width:0; transition:width .2s; }
+  video { width:100%; border-radius:8px; background:#fff; border:1px solid var(--line); display:block; }
+  .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+  @media (max-width:700px) { .grid { grid-template-columns:1fr; } }
+  .cand { margin:0; }
+  .cand h3 { margin:0 0 6px; font-size:16px; }
+  .cand h3 .id { font-weight:400; font-size:11px; color:var(--mute); }
+  .q { margin-top:8px; }
+  .q .lab { font-size:13px; color:var(--mute); }
+  .scale { display:flex; gap:4px; margin-top:2px; }
+  .scale label { flex:1; text-align:center; border:1px solid var(--line); border-radius:6px; padding:4px 0; cursor:pointer; font-size:13px; user-select:none; }
+  .scale input { display:none; }
+  .scale label:has(input:checked) { background:var(--accent); color:#fff; border-color:var(--accent); font-weight:700; }
+  button { font:inherit; padding:8px 16px; border-radius:8px; border:1px solid var(--line); background:#fff; cursor:pointer; }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  button:disabled { opacity:.45; cursor:default; }
+  input[type=text] { font:inherit; padding:8px 10px; border:1px solid var(--line); border-radius:8px; width:220px; }
+  .crit dt { font-weight:600; } .crit dd { margin:0 0 8px; color:var(--mute); }
+  .ends { font-size:13px; color:var(--mute); display:flex; justify-content:space-between; margin-top:2px; }
+  .warn { color:#b3261e; font-size:14px; min-height:20px; }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+<main>
+  <section id="intro" class="card">
+    <h1>Rating 3D talking heads</h1>
+    <p>Each page shows one short conversation (16&nbsp;s) between two people. You hear both voices. The grey 3D head belongs to
+      <b>one</b> of the two people: sometimes it speaks, sometimes it listens to the other person.</p>
+    <p>Every page has <b>four computer-generated versions</b> of the same head in the same conversation (Video A–D, in random order).
+      Watch each one with sound and rate it from <b>1 (very poor)</b> to <b>5 (excellent)</b> on:</p>
+    <dl class="crit">
+      <dt>Lip sync</dt><dd>When the head speaks, do the lips and jaw match the speech?</dd>
+      <dt>Naturalness</dt><dd>Does the motion look like a real person: smooth, no shaking or jitter, not frozen or robotic?</dd>
+      <dt>Interactivity</dt><dd>When the head listens, does it react to the other person in a believable way (nods, expressions, attention)?</dd>
+    </dl>
+    <p class="mute">20 pages, about 20 minutes. Headphones help. Your answers are saved in this browser, so you can close the page and continue later.</p>
+    <div class="bar"><span><input id="nick" type="text" placeholder="Your nickname (any)"></span>
+      <button class="primary" id="start">Start</button></div>
+    <div class="warn" id="introWarn"></div>
+  </section>
+
+  <section id="study" class="hidden">
+    <div class="card">
+      <div class="bar"><h2 id="title"></h2>
+        <span><button id="playAll">Play all together</button> <button id="pauseAll">Pause</button> <span class="mute" id="count"></span></span></div>
+      <div class="progress"><div id="prog"></div></div>
+      <div class="mute" style="font-size:13px;margin-top:6px">“Play all together” plays the four videos in sync with one sound track. You can also play each video on its own.</div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="warn" id="warn"></div>
+    <div class="bar"><button id="prev">Previous</button><button class="primary" id="next">Next</button></div>
+  </section>
+
+  <section id="done" class="card hidden">
+    <h1>Thank you!</h1>
+    <p id="sendMsg" class="mute">Sending your answers…</p>
+    <button class="primary" id="resend">Send again</button>
+    <p class="mute" style="margin-top:16px">If sending fails, click below and email the downloaded <code>.csv</code> file instead.</p>
+    <button id="dl">Download my answers</button>
+    <button id="back">Review my answers</button>
+  </section>
+</main>
+<script src="config.js"></script>
+<script>
+const CLIPS = [{"cands": ["81c0d67f", "6773bfce", "d9bec3da", "73ab150d"]}, {"cands": ["278f3b2b", "42cab156", "af15c0fc", "37be0507"]}, {"cands": ["1b601894", "2ab64116", "1c22c834", "e7740ae4"]}, {"cands": ["b3cac443", "0486736e", "eb808d20", "e01c02bf"]}, {"cands": ["82a2d6dd", "21a65200", "dcbc671c", "aa6bfa97"]}, {"cands": ["26389bc6", "edc6498d", "8d1d7305", "5a6fe47b"]}, {"cands": ["76d70005", "3bf7c684", "0038599b", "2ed4d969"]}, {"cands": ["0b574093", "2901a395", "2ce5b861", "dd26b5e5"]}, {"cands": ["61a8e5f6", "d0d6bab7", "f5e2d300", "7384c03c"]}, {"cands": ["6a582ce8", "baf60061", "b15ab6e0", "c5b5524a"]}, {"cands": ["b16908a5", "0fbf0c6a", "80eaa062", "c9c96af0"]}, {"cands": ["cbbdd098", "3dc19403", "d7dd5962", "18d714db"]}, {"cands": ["a9a98894", "2a875046", "4fff66a9", "4d8aa27b"]}, {"cands": ["b79bce76", "59c06a16", "b4babecd", "f5eefdfd"]}, {"cands": ["4399a7af", "d0e4c30d", "d949405b", "9ca83c2a"]}, {"cands": ["fccbb0fb", "467494eb", "09aa1eb2", "da370d9b"]}, {"cands": ["886ad3e6", "34f7d04d", "7a0fe654", "70bdb5c2"]}, {"cands": ["c13c88d4", "85d31c49", "500bdebd", "9b9da67d"]}, {"cands": ["f4e1802d", "2f98c6d0", "20e49658", "2609acbf"]}, {"cands": ["4c187edf", "3991b48e", "b0651e3c", "e94cca1b"]}];
+const CRIT = [["lipsync", "Lip sync"], ["natural", "Naturalness"], ["interact", "Interactivity"]];
+const KEY = "ts_study_v2";
+let S = null;
+try { S = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { S = null; }
+if (S && (!S.pages || S.pages.some(p => !CLIPS[p.clip]))) S = null;          // stale state from another build
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+function seeded(str) { let h = 2166136261; for (const c of str) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); }
+  return () => { h ^= h << 13; h ^= h >>> 17; h ^= h << 5; return ((h >>> 0) % 1e6) / 1e6; }; }
+function shuffle(a, r) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const $ = id => document.getElementById(id);
+const vids = () => [...document.querySelectorAll("#grid video")];
+
+function begin(nick) {
+  const r = seeded(nick + Date.now());
+  S = { nick, started: new Date().toISOString(), page: 0,
+        pages: shuffle(CLIPS.map((_, i) => i), r).map(i => ({ clip: i, cands: shuffle(CLIPS[i].cands, r) })), ans: {} };
+  save(); show();
+}
+function render() {
+  const p = S.pages[S.page];
+  $("title").textContent = `Conversation ${S.page + 1}`; $("count").textContent = `${S.page + 1} / ${S.pages.length}`;
+  $("prog").style.width = `${100 * S.page / S.pages.length}%`;
+  const g = $("grid"); g.innerHTML = "";
+  p.cands.forEach((vid, j) => {
+    const d = document.createElement("div"); d.className = "card cand";
+    d.innerHTML = `<h3>Video ${"ABCD"[j]} <span class="id">#${vid}</span></h3><video controls preload="auto" playsinline src="videos/${vid}.mp4"></video>` +
+      CRIT.map(([k, lab]) => `<div class="q"><div class="lab">${lab}</div><div class="scale">` +
+        [1, 2, 3, 4, 5].map(s => `<label><input type="radio" name="${vid}_${k}" value="${s}" ${(S.ans[vid] || {})[k] == s ? "checked" : ""}><span>${s}</span></label>`).join("") +
+        `</div></div>`).join("") + `<div class="ends"><span>1 very poor</span><span>5 excellent</span></div>`;
+    g.appendChild(d);
+  });
+  g.querySelectorAll("input").forEach(inp => inp.addEventListener("change", e => {
+    const [vid, k] = e.target.name.split("_"); (S.ans[vid] = S.ans[vid] || {})[k] = +e.target.value; S.ans[vid].t = new Date().toISOString(); save();
+  }));
+  $("prev").disabled = S.page === 0; $("next").textContent = S.page === S.pages.length - 1 ? "Finish" : "Next"; $("warn").textContent = "";
+  window.scrollTo(0, 0);
+}
+function rowsOf() {
+  const rows = [["rater", "page", "clip_no", "video_id", ...CRIT.map(c => c[0]), "time"]];
+  S.pages.forEach((p, i) => p.cands.forEach(v => { const a = S.ans[v] || {}; rows.push([S.nick, i + 1, p.clip + 1, v, ...CRIT.map(c => a[c[0]] || ""), a.t || ""]); }));
+  return rows;
+}
+async function submit() {
+  const url = (window.STUDY_CONFIG || {}).submitUrl;
+  if (!url) { $("sendMsg").textContent = "Automatic sending is not set up; please download your answers below and email them."; return; }
+  $("sendMsg").textContent = "Sending your answers…";
+  try {
+    await fetch(url, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ nick: S.nick, started: S.started, finished: new Date().toISOString(), rows: rowsOf() }) });
+    S.submitted = true; save();
+    $("sendMsg").textContent = "✓ Your answers were sent. Thank you, you can close this page.";
+  } catch (e) { $("sendMsg").textContent = "Sending failed (" + e + "). Please try again, or download your answers below and email them."; }
+}
+const complete = () => S.pages[S.page].cands.every(v => CRIT.every(([k]) => (S.ans[v] || {})[k]));
+function show() {
+  $("intro").classList.toggle("hidden", !!S);
+  $("study").classList.toggle("hidden", !S || S.page >= S.pages.length);
+  $("done").classList.toggle("hidden", !S || S.page < S.pages.length);
+  if (S && S.page < S.pages.length) render();
+  if (S && S.page >= S.pages.length) { if (S.submitted) $("sendMsg").textContent = "✓ Your answers were sent. Thank you, you can close this page."; else submit(); }
+}
+$("start").onclick = () => { const n = $("nick").value.trim(); if (!n) { $("introWarn").textContent = "Please enter a nickname."; return; } begin(n); };
+$("next").onclick = () => { if (!complete()) { $("warn").textContent = "Please rate every video on all three questions."; return; }
+  vids().forEach(v => v.pause()); S.page++; save(); show(); };
+$("prev").onclick = () => { vids().forEach(v => v.pause()); S.page--; save(); show(); };
+$("back").onclick = () => { S.page = S.pages.length - 1; save(); show(); };
+$("playAll").onclick = () => { const v = vids(); v.forEach((x, i) => { x.muted = i > 0; x.currentTime = 0; }); v.forEach(x => x.play()); };
+$("pauseAll").onclick = () => vids().forEach(v => v.pause());
+$("resend").onclick = () => submit();
+$("dl").onclick = () => {
+  const rows = rowsOf();
+  const blob = new Blob([rows.map(r => r.join(",")).join("\n")], { type: "text/csv" });
+  const u = URL.createObjectURL(blob), el = document.createElement("a");
+  el.href = u; el.download = `study_${S.nick.replace(/[^a-z0-9_-]/gi, "_")}.csv`; el.click(); URL.revokeObjectURL(u);
+};
+show();
+</script>
+</body>
+</html>
